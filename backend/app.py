@@ -4,7 +4,7 @@ import csv
 import os
 
 app = Flask(__name__)
-CORS(app)  # 🔥 THIS FIXES EVERYTHING
+CORS(app)  
 
 CSV_PATH = "../engine/output.csv"
 

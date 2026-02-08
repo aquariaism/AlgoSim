@@ -5,7 +5,7 @@
 #include <thread>
 #include <chrono>
 
-// Objective function
+// Objective func
 double f(double x) {
     return x * x - 4 * x + 4;
 }
@@ -32,7 +32,7 @@ int main() {
             x += step;
 
         file << i << "," << x << "," << f(x) << "\n";
-        file.flush(); // VERY IMPORTANT
+        file.flush(); 
 
         Sleep(100); // milliseconds
     }

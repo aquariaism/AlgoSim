@@ -2,13 +2,355 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AlgoSim – Live Optimization</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlgoSim — Genetic Algorithm Visualizer</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #070707 0%, #121212 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section {
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 15px;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .section h3 {
+      margin-bottom: 15px;
+      color: #333;
+      font-size: 1.1em;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-start {
+      background: #111111;
+      color: white;
+    }
+
+    .btn-start:hover:not(:disabled) {
+      background: #181918;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-stop {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      background: #dc2626;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-reset {
+      background: #8692a8;
+      color: white;
+      display: block;
+    margin: 20px auto 0 auto; 
+    }
+
+    .btn-reset:hover:not(:disabled) {
+      background: #4b5563;
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+
+    .status-dot.running {
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .config-grid {
+      display: grid;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    input, select {
+      padding: 10px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.85em;
+      opacity: 0.9;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 400px;
+    }
+
+    .charts-panel {
+      display: grid;
+      gap: 20px;
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: #1e40af;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <h1>Algo Sim</h1>
+      <div class="subtitle">Real-time Genetic Algorithm Visualizer</div>
+    </header>
 
-  <h2>Live Optimization Graph</h2>
-  <canvas id="chart" width="800" height="400"></canvas>
+    <div class="main-grid">
+      <!-- Control Panel -->
+      <div class="panel control-panel">
+        <div class="section">
+          <h3> Controls</h3>
+          <div class="button-group">
+            <button class="btn-start" id="startBtn">▶ Start</button>
+            <button class="btn-stop" id="stopBtn" disabled>⏹ Stop</button>
+          </div>
+          <button class="btn-reset" id="resetBtn">🔄 Reset</button>
+          
+          <div class="status-indicator">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Ready</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3> Configuration</h3>
+          <div class="config-grid">
+            <div class="form-group">
+              <label for="functionSelect">Fitness Function</label>
+              <select id="functionSelect">
+                <option value="rastrigin">Rastrigin (Multimodal)</option>
+                <option value="sphere">Sphere (Convex)</option>
+                <option value="rosenbrock">Rosenbrock (Valley)</option>
+                <option value="ackley">Ackley (Local Minima)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="popSize">Population Size</label>
+              <input type="number" id="popSize" value="50" min="10" max="200">
+            </div>
+
+            <div class="form-group">
+              <label for="generations">Generations</label>
+              <input type="number" id="generations" value="100" min="10" max="500">
+            </div>
+
+            <div class="form-group">
+              <label for="mutationRate">Mutation Rate</label>
+              <input type="number" id="mutationRate" value="0.1" min="0" max="1" step="0.01">
+            </div>
+
+            <div class="form-group">
+              <label for="crossoverRate">Crossover Rate</label>
+              <input type="number" id="crossoverRate" value="0.8" min="0" max="1" step="0.01">
+            </div>
+
+            <div class="form-group">
+              <label for="delay">Update Delay (ms)</label>
+              <input type="number" id="delay" value="100" min="10" max="1000" step="10">
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3> Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Generation</div>
+              <div class="stat-value" id="currentGen">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Best Fitness</div>
+              <div class="stat-value" id="bestFitness">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Avg Fitness</div>
+              <div class="stat-value" id="avgFitness">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Diversity</div>
+              <div class="stat-value" id="diversity">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          💡 <strong>Tip:</strong> Lower fitness values are better. The algorithm is trying to minimize the function.
+        </div>
+      </div>
+
+      <!-- Charts Panel -->
+      <div class="charts-panel">
+        <div class="panel">
+          <h3 style="margin-bottom: 15px;">Fitness Evolution</h3>
+          <div class="chart-container">
+            <canvas id="fitnessChart"></canvas>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 style="margin-bottom: 15px;">Population Diversity</h3>
+          <div class="chart-container">
+            <canvas id="diversityChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

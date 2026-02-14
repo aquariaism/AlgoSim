@@ -1,0 +1,9 @@
+popSize=50
+generations=100
+mutationRate=0.1
+crossoverRate=0.8
+eliteRatio=0.2
+delay=100
+function=rastrigin
+minBound=-5.12
+maxBound=5.12
